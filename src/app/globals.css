@@ -1,0 +1,274 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+/* ───────────────────────────────────────────────────────────────
+   SCENARA — Red & Black theme
+   Deep onyx backgrounds with crimson accents and ember glows.
+   The dark theme is the default (platform is dark-first).
+   ─────────────────────────────────────────────────────────────── */
+
+:root,
+.dark {
+  --radius: 0.75rem;
+
+  /* Surfaces — deep onyx with a whisper of red warmth */
+  --background: oklch(0.12 0.008 20);
+  --foreground: oklch(0.96 0.004 0);
+
+  --card: oklch(0.16 0.012 20);
+  --card-foreground: oklch(0.96 0.004 0);
+
+  --popover: oklch(0.15 0.012 20);
+  --popover-foreground: oklch(0.96 0.004 0);
+
+  /* Primary — vivid crimson */
+  --primary: oklch(0.6 0.21 25);
+  --primary-foreground: oklch(0.98 0.01 0);
+
+  --secondary: oklch(0.21 0.018 20);
+  --secondary-foreground: oklch(0.94 0.004 0);
+
+  --muted: oklch(0.2 0.014 20);
+  --muted-foreground: oklch(0.68 0.012 20);
+
+  /* Accent — red-tinted for hover states */
+  --accent: oklch(0.26 0.05 25);
+  --accent-foreground: oklch(0.97 0.01 0);
+
+  --destructive: oklch(0.62 0.24 27);
+
+  /* Borders & inputs — subtle, red-tinted, low opacity */
+  --border: oklch(0.32 0.025 25 / 45%);
+  --input: oklch(0.24 0.02 25 / 70%);
+  --ring: oklch(0.6 0.21 25 / 60%);
+
+  /* Chart palette — ember to crimson spectrum */
+  --chart-1: oklch(0.62 0.22 25);
+  --chart-2: oklch(0.55 0.19 12);
+  --chart-3: oklch(0.68 0.18 40);
+  --chart-4: oklch(0.5 0.14 280);
+  --chart-5: oklch(0.72 0.2 55);
+
+  /* Sidebar */
+  --sidebar: oklch(0.13 0.01 20);
+  --sidebar-foreground: oklch(0.96 0.004 0);
+  --sidebar-primary: oklch(0.6 0.21 25);
+  --sidebar-primary-foreground: oklch(0.98 0.01 0);
+  --sidebar-accent: oklch(0.22 0.04 25);
+  --sidebar-accent-foreground: oklch(0.97 0.01 0);
+  --sidebar-border: oklch(0.32 0.025 25 / 45%);
+  --sidebar-ring: oklch(0.6 0.21 25 / 60%);
+
+  /* Custom scenara tokens */
+  --ember: oklch(0.6 0.21 25);
+  --ember-soft: oklch(0.6 0.21 25 / 14%);
+  --crimson-glow: oklch(0.6 0.21 25 / 22%);
+  --surface-glass: oklch(0.17 0.012 20 / 55%);
+  --grid-line: oklch(0.6 0.21 25 / 6%);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    color-scheme: dark;
+  }
+  body {
+    @apply bg-background text-foreground;
+    background-image:
+      radial-gradient(
+        ellipse 80% 50% at 50% -10%,
+        oklch(0.6 0.21 25 / 12%),
+        transparent 60%
+      ),
+      radial-gradient(
+        ellipse 60% 40% at 100% 0%,
+        oklch(0.5 0.19 12 / 8%),
+        transparent 55%
+      );
+    background-attachment: fixed;
+  }
+
+  /* Custom scrollbar — thin, ember-tinted */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: oklch(0.32 0.04 25 / 50%);
+    border-radius: 9999px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: oklch(0.6 0.21 25 / 55%);
+    background-clip: padding-box;
+  }
+
+  ::selection {
+    background: oklch(0.6 0.21 25 / 35%);
+    color: oklch(0.98 0.01 0);
+  }
+}
+
+@layer components {
+  /* Glassmorphism surface */
+  .glass {
+    background: var(--surface-glass);
+    backdrop-filter: blur(16px) saturate(140%);
+    -webkit-backdrop-filter: blur(16px) saturate(140%);
+    border: 1px solid var(--border);
+  }
+
+  .glass-strong {
+    background: oklch(0.15 0.012 20 / 50%);
+    backdrop-filter: blur(24px) saturate(160%);
+    -webkit-backdrop-filter: blur(24px) saturate(160%);
+    border: 1px solid oklch(0.6 0.21 25 / 25%);
+  }
+
+  /* Subtle red glow used on focus / active cards */
+  .glow-ember {
+    box-shadow:
+      0 0 0 1px oklch(0.6 0.21 25 / 30%),
+      0 8px 30px -8px oklch(0.6 0.21 25 / 35%);
+  }
+
+  .glow-ember-sm {
+    box-shadow: 0 0 0 1px oklch(0.6 0.21 25 / 22%);
+  }
+
+  /* Gradient text — crimson ember */
+  .text-gradient-ember {
+    background: linear-gradient(
+      135deg,
+      oklch(0.72 0.2 45) 0%,
+      oklch(0.6 0.21 25) 55%,
+      oklch(0.5 0.19 12) 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Grid background pattern for hero / empty states */
+  .bg-grid {
+    background-image:
+      linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+
+  .bg-grid-fade {
+    -webkit-mask-image: radial-gradient(
+      ellipse 70% 60% at 50% 0%,
+      black 30%,
+      transparent 75%
+    );
+    mask-image: radial-gradient(
+      ellipse 70% 60% at 50% 0%,
+      black 30%,
+      transparent 75%
+    );
+  }
+
+  /* Card hover lift */
+  .card-hover {
+    transition: transform 0.25s ease, box-shadow 0.25s ease,
+      border-color 0.25s ease;
+  }
+  .card-hover:hover {
+    transform: translateY(-2px);
+    border-color: oklch(0.6 0.21 25 / 45%);
+    box-shadow: 0 12px 40px -12px oklch(0.6 0.21 25 / 30%);
+  }
+}
+
+@layer utilities {
+  .animate-pulse-ember {
+    animation: pulse-ember 2.5s ease-in-out infinite;
+  }
+  @keyframes pulse-ember {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.55;
+    }
+  }
+
+  .animate-fade-up {
+    animation: fade-up 0.4s ease-out both;
+  }
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-scale-in {
+    animation: scale-in 0.2s ease-out both;
+  }
+  @keyframes scale-in {
+    from {
+      opacity: 0;
+      transform: scale(0.96);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+}
