@@ -1,7 +1,10 @@
 import type {
+  Attachment,
   Difficulty,
+  PlatformStats,
   ScenarioDetail,
   ScenarioListItem,
+  TechStackStat,
   Technology,
 } from '@/lib/types'
 
@@ -60,6 +63,16 @@ export const api = {
     })
   },
 
+  async getStats() {
+    return jsonFetch<{ stats: PlatformStats }>('/api/stats')
+  },
+
+  async getTopTechStacks(limit = 8) {
+    return jsonFetch<{ stacks: TechStackStat[] }>(
+      `/api/stats/tech-stacks?limit=${limit}`
+    )
+  },
+
   async listScenarios(params: ListScenariosParams = {}) {
     const sp = new URLSearchParams()
     if (params.q) sp.set('q', params.q)
@@ -87,6 +100,7 @@ export const api = {
     content: string
     difficulty: Difficulty
     technologyIds: string[]
+    attachments?: Attachment[]
   }) {
     return jsonFetch<{ scenario: ScenarioDetail }>(`/api/scenarios`, {
       method: 'POST',

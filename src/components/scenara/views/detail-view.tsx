@@ -10,6 +10,7 @@ import { DifficultyBadge } from '@/components/scenara/difficulty-badge'
 import { TechBadge } from '@/components/scenara/tech-badge'
 import { VoteButton } from '@/components/scenara/vote-button'
 import { Markdown } from '@/components/scenara/markdown'
+import { AttachmentsList } from '@/components/scenara/attachments-list'
 import {
   SolutionCard,
   SolutionSubmitCTA,
@@ -27,11 +28,12 @@ import {
   Lightbulb,
   Loader2,
   Flame,
+  Paperclip,
 } from 'lucide-react'
 
 export function DetailView({ scenarioId }: { scenarioId: string }) {
-  const goFeed = useAppStore((s) => s.goFeed)
-  const setFilters = useAppStore((s) => s.setFilters)
+  const goDashboard = useAppStore((s) => s.goDashboard)
+  const openTechStack = useAppStore((s) => s.openTechStack)
   const { isAuthenticated } = useAuth()
   const [composerOpen, setComposerOpen] = useState(false)
 
@@ -46,9 +48,9 @@ export function DetailView({ scenarioId }: { scenarioId: string }) {
   if (isLoading) {
     return (
       <div className="mx-auto max-w-4xl px-4 py-6 sm:px-6">
-        <Button variant="ghost" size="sm" onClick={goFeed} className="mb-4">
+        <Button variant="ghost" size="sm" onClick={goDashboard} className="mb-4">
           <ArrowLeft className="h-4 w-4" />
-          Back to feed
+          Back to dashboard
         </Button>
         <div className="space-y-4">
           <Skeleton className="h-8 w-3/4" />
@@ -63,9 +65,9 @@ export function DetailView({ scenarioId }: { scenarioId: string }) {
   if (error || !scenario) {
     return (
       <div className="mx-auto max-w-4xl px-4 py-6 sm:px-6">
-        <Button variant="ghost" size="sm" onClick={goFeed} className="mb-4">
+        <Button variant="ghost" size="sm" onClick={goDashboard} className="mb-4">
           <ArrowLeft className="h-4 w-4" />
-          Back to feed
+          Back to dashboard
         </Button>
         <Card className="p-8 text-center">
           <p className="text-sm text-muted-foreground">
@@ -78,9 +80,9 @@ export function DetailView({ scenarioId }: { scenarioId: string }) {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-6 sm:px-6">
-      <Button variant="ghost" size="sm" onClick={goFeed} className="mb-4">
+      <Button variant="ghost" size="sm" onClick={goDashboard} className="mb-4">
         <ArrowLeft className="h-4 w-4" />
-        Back to feed
+        Back to dashboard
       </Button>
 
       <article className="animate-fade-up">
@@ -153,10 +155,7 @@ export function DetailView({ scenarioId }: { scenarioId: string }) {
                     key={t.id}
                     tech={t}
                     size="md"
-                    onClick={() => {
-                      setFilters({ techSlug: t.slug })
-                      goFeed()
-                    }}
+                    onClick={() => openTechStack(t.slug)}
                   />
                 ))}
               </div>
@@ -167,6 +166,17 @@ export function DetailView({ scenarioId }: { scenarioId: string }) {
         {/* body content */}
         <div className="mt-5 rounded-xl border border-border/60 bg-card/30 p-5 backdrop-blur-sm sm:p-6">
           <Markdown>{scenario.content}</Markdown>
+
+          {scenario.attachments.length > 0 && (
+            <div className="mt-5 border-t border-border/60 pt-4">
+              <div className="mb-3 flex items-center gap-2 text-xs font-medium text-muted-foreground">
+                <Paperclip className="h-3.5 w-3.5 text-primary" />
+                {scenario.attachmentsCount} attachment
+                {scenario.attachmentsCount > 1 ? 's' : ''}
+              </div>
+              <AttachmentsList attachments={scenario.attachments} />
+            </div>
+          )}
         </div>
 
         {/* solutions section */}

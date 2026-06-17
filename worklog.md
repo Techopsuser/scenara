@@ -52,3 +52,31 @@ Stage Summary:
 - Agent Browser E2E verification passed: signup → feed (4 scenarios) → tech filter (Bun) → difficulty filter (Expert) → scenario detail (markdown + solutions) → submit solution (count 1→2) → create scenario (added new "Bun" tech dynamically, published, appears in feed) → vote (0→1) → sign out → login. Mobile (390x844) and desktop (1280x800) both render correctly. No console/runtime errors.
 - VLM design review: feed 8/10, auth glassmorphism confirmed visible (red glow bleeding through frosted glass).
 - Platform is fully dynamic: no hardcoded scenarios — all user-generated. Tech list starts with 120 seeded entries and grows as users add more.
+
+---
+Task ID: main-v2
+Agent: Z.ai Code (orchestrator)
+Task: Restructure post-login flow into Live Dashboard + Tech Stack Detail page + Create Scenario Modal with photo/file attachments
+
+Work Log:
+- Added `attachments` JSON field to Scenario schema (stores base64 data URLs for portable sharing); pushed DB + regenerated Prisma client.
+- Rewrote Zustand store: views changed from feed/compose/detail to dashboard/techStack/detail; added composerOpen modal state; replaced feedFilters with stackFilters.
+- Extended types: Attachment, TechStackStat, PlatformStats; added hasAttachments/attachmentsCount to ScenarioListItem; attachments array on ScenarioDetail.
+- Built 2 new API endpoints: /api/stats (real-time counters: scenarios, solutions, technologies, members, totalViews, solved) and /api/stats/tech-stacks (most-viewed stacks ranked by scenario count + views + solutions).
+- Updated /api/scenarios POST to accept + validate attachments (max 6, max 2MB each, base64 data URLs) and persist as JSON; GET now returns hasAttachments/attachmentsCount; /api/scenarios/[id] GET returns full attachments array.
+- Built DashboardView (new landing): LIVE badge with pinging dot, 6 animated stat cards (auto-refresh every 15s via TanStack Query refetchInterval), Most viewed tech stacks grid (numbered ranking), Trending scenarios (sorted by views), Available tech stacks grid grouped by 12 categories with live search.
+- Built TechStackView: stack header with Cpu icon + category + per-stack stats (scenarios/views/solutions), sticky filter bar (search/difficulty/sort), scenario grid, empty state CTA.
+- Built ComposeModal (Dialog): LinkedIn/Facebook-style rich posting with title/summary/difficulty/tech-selector/markdown-editor-with-preview, plus Photos (image upload → thumbnail grid) and Files (any file → downloadable chips) attachments; reads files as base64 data URLs client-side; remove buttons per attachment; portable sharing note.
+- Built AttachmentsList renderer: images as clickable grid (opens full-size), files as downloadable chips with extension + size.
+- Updated DetailView to render attachments section below markdown content; tech badges now navigate to TechStackView.
+- Updated SiteHeader: "New scenario" opens modal (not a view); nav label changed to "Dashboard".
+- Updated page.tsx: routes dashboard/techStack/detail views + mounts ComposeModal when composerOpen.
+- Removed obsolete feed-view, compose-view, tech-filter files.
+- Fixed Prisma client cache issue (regenerated after schema change; restarted dev server).
+
+Stage Summary:
+- Lint passes with 0 errors/warnings. Dev server running clean on port 3000.
+- Agent Browser E2E verified: login → dashboard (live stats + most viewed stacks + trending + tech grid) → tech stack detail (Python) → open composer modal → upload image attachment (preview shown) → fill form → select Kubernetes tech → publish (POST 201) → detail page renders markdown + attachment image inline → dashboard shows new scenario in trending.
+- VLM design review: dashboard 8/10 (all sections present, modern/sleek, red & black consistent).
+- Attachments are portable: stored as base64 data URLs in DB, render inline on detail page, downloadable for files.
+- Live stats auto-refresh every 15s for real-time feel.

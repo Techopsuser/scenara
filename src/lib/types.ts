@@ -17,6 +17,24 @@ export interface Technology {
   icon?: string | null
 }
 
+export interface TechStackStat {
+  id: string
+  name: string
+  slug: string
+  category: string
+  scenariosCount: number
+  totalViews: number
+  totalSolutions: number
+}
+
+export interface Attachment {
+  type: 'image' | 'file'
+  name: string
+  mime: string
+  size: number
+  data: string // base64 data URL for portable sharing
+}
+
 export interface ScenarioListItem {
   id: string
   title: string
@@ -32,6 +50,8 @@ export interface ScenarioListItem {
   votesCount: number
   netVotes: number
   myVote: number
+  hasAttachments: boolean
+  attachmentsCount: number
 }
 
 export interface Solution {
@@ -48,8 +68,18 @@ export interface Solution {
 
 export interface ScenarioDetail extends Omit<ScenarioListItem, 'solutionsCount'> {
   content: string
+  attachments: Attachment[]
   solutions: Solution[]
   isAuthor: boolean
+}
+
+export interface PlatformStats {
+  scenarios: number
+  solutions: number
+  technologies: number
+  members: number
+  totalViews: number
+  solved: number
 }
 
 export const DIFFICULTY_META: Record<

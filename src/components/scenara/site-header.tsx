@@ -27,7 +27,7 @@ import { cn } from '@/lib/utils'
 export function SiteHeader({ onShowAuth }: { onShowAuth: () => void }) {
   const { status } = useSession()
   const { user, isLoading } = useAuth()
-  const { view, goFeed, goCompose } = useAppStore()
+  const { view, goDashboard, openComposer } = useAppStore()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const authenticated = status === 'authenticated' && !!user
@@ -37,7 +37,7 @@ export function SiteHeader({ onShowAuth }: { onShowAuth: () => void }) {
       <div className="mx-auto flex h-14 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6">
         <div className="flex items-center gap-6">
           <button
-            onClick={goFeed}
+            onClick={goDashboard}
             className="transition-opacity hover:opacity-90"
             aria-label="Scenara home"
           >
@@ -47,16 +47,16 @@ export function SiteHeader({ onShowAuth }: { onShowAuth: () => void }) {
           {authenticated && (
             <nav className="hidden items-center gap-1 sm:flex">
               <button
-                onClick={goFeed}
+                onClick={goDashboard}
                 className={cn(
                   'inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
-                  view === 'feed'
+                  view === 'dashboard'
                     ? 'bg-secondary text-foreground'
                     : 'text-muted-foreground hover:text-foreground'
                 )}
               >
                 <LayoutGrid className="h-4 w-4" />
-                Feed
+                Dashboard
               </button>
             </nav>
           )}
@@ -67,7 +67,7 @@ export function SiteHeader({ onShowAuth }: { onShowAuth: () => void }) {
             <>
               <Button
                 size="sm"
-                onClick={goCompose}
+                onClick={openComposer}
                 className="hidden sm:inline-flex"
               >
                 <Plus className="h-4 w-4" />
@@ -76,7 +76,7 @@ export function SiteHeader({ onShowAuth }: { onShowAuth: () => void }) {
               <Button
                 size="sm"
                 variant="secondary"
-                onClick={goCompose}
+                onClick={openComposer}
                 className="sm:hidden"
                 aria-label="New scenario"
               >
@@ -103,11 +103,11 @@ export function SiteHeader({ onShowAuth }: { onShowAuth: () => void }) {
                     </span>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={goFeed}>
+                  <DropdownMenuItem onClick={goDashboard}>
                     <LayoutGrid className="mr-2 h-4 w-4" />
-                    Browse feed
+                    Dashboard
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={goCompose}>
+                  <DropdownMenuItem onClick={openComposer}>
                     <Flame className="mr-2 h-4 w-4" />
                     Share a scenario
                   </DropdownMenuItem>

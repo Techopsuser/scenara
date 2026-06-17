@@ -1,10 +1,30 @@
 import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { getCurrentUserId } from '@/lib/session'
+import type { Attachment } from '@/lib/types'
 
 export const dynamic = 'force-dynamic'
 
 const ALLOWED_DIFFICULTIES = ['beginner', 'intermediate', 'advanced', 'expert']
+const MAX_ATTACHMENTS = 6
+const MAX_ATTACHMENT_BYTES = 2 * 1024 * 1024 // 2MB each
+
+function parseAttachments(raw: string | null | undefined): Attachment[] {
+  if (!raw) return []
+  try {
+    const parsed = JSON.parse(raw)
+    if (!Array.isArray(parsed)) return []
+    return parsed.filter(
+      (a) =>
+        a &&
+        (a.type === 'image' || a.type === 'file') &&
+        typeof a.name === 'string' &&
+        typeof a.data === 'string'
+    ) as Attachment[]
+  } catch {
+    return []
+  }
+}
 
 // GET /api/scenarios?q=&tech=&difficulty=&sort=&page=&limit=
 export async function GET(req: Request) {
@@ -87,6 +107,7 @@ export async function GET(req: Request) {
 
   const items = scenarios.map((s) => {
     const netVotes = s.votes.reduce((sum, v) => sum + v.value, 0)
+    const attachments = parseAttachments(s.attachments)
     return {
       id: s.id,
       title: s.title,
@@ -102,6 +123,8 @@ export async function GET(req: Request) {
       votesCount: s._count.votes,
       netVotes,
       myVote: s.votes?.[0]?.value ?? 0,
+      hasAttachments: attachments.length > 0,
+      attachmentsCount: attachments.length,
     }
   })
 
@@ -113,7 +136,7 @@ export async function GET(req: Request) {
   })
 }
 
-// POST /api/scenarios  { title, summary, content, difficulty, technologyIds }
+// POST /api/scenarios  { title, summary, content, difficulty, technologyIds, attachments }
 export async function POST(req: Request) {
   const userId = await getCurrentUserId()
   if (!userId) {
@@ -131,6 +154,24 @@ export async function POST(req: Request) {
     const technologyIds: string[] = Array.isArray(body?.technologyIds)
       ? body.technologyIds.filter((id: unknown) => typeof id === 'string')
       : []
+
+    // Validate + sanitize attachments
+    let attachments: Attachment[] = []
+    if (Array.isArray(body?.attachments)) {
+      attachments = (body.attachments as Attachment[])
+        .filter(
+          (a) =>
+            a &&
+            (a.type === 'image' || a.type === 'file') &&
+            typeof a.name === 'string' &&
+            typeof a.mime === 'string' &&
+            typeof a.size === 'number' &&
+            typeof a.data === 'string' &&
+            a.data.startsWith('data:')
+        )
+        .slice(0, MAX_ATTACHMENTS)
+        .filter((a) => a.size <= MAX_ATTACHMENT_BYTES)
+    }
 
     if (!title || title.length < 8) {
       return NextResponse.json(
@@ -176,6 +217,7 @@ export async function POST(req: Request) {
         content,
         difficulty,
         authorId: userId,
+        attachments: attachments.length > 0 ? JSON.stringify(attachments) : null,
         technologies: {
           create: technologyIds.map((id) => ({ technologyId: id })),
         },

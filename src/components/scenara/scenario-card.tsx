@@ -1,6 +1,6 @@
 'use client'
 
-import { MessageSquare, Eye, ArrowUp } from 'lucide-react'
+import { MessageSquare, Eye, ArrowUp, Paperclip } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { DifficultyBadge } from '@/components/scenara/difficulty-badge'
 import { TechBadge } from '@/components/scenara/tech-badge'
@@ -12,7 +12,7 @@ import { cn } from '@/lib/utils'
 
 export function ScenarioCard({ scenario }: { scenario: ScenarioListItem }) {
   const openScenario = useAppStore((s) => s.openScenario)
-  const setFilters = useAppStore((s) => s.setFilters)
+  const openTechStack = useAppStore((s) => s.openTechStack)
 
   return (
     <Card
@@ -34,6 +34,12 @@ export function ScenarioCard({ scenario }: { scenario: ScenarioListItem }) {
             {scenario.status === 'solved' && (
               <span className="inline-flex items-center rounded-full border border-primary/40 bg-primary/10 px-2.5 py-0.5 text-[11px] font-medium text-primary">
                 Solved
+              </span>
+            )}
+            {scenario.hasAttachments && (
+              <span className="inline-flex items-center gap-1 rounded-full border border-border bg-secondary/50 px-2 py-0.5 text-[11px] text-muted-foreground">
+                <Paperclip className="h-3 w-3" />
+                {scenario.attachmentsCount}
               </span>
             )}
             <span className="text-[11px] text-muted-foreground">
@@ -58,7 +64,7 @@ export function ScenarioCard({ scenario }: { scenario: ScenarioListItem }) {
                 tech={t}
                 onClick={(e) => {
                   e.stopPropagation()
-                  setFilters({ techSlug: t.slug })
+                  openTechStack(t.slug)
                 }}
               />
             ))}

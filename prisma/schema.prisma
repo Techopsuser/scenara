@@ -91,6 +91,9 @@ model Scenario {
   difficulty  String   @default("intermediate") // beginner | intermediate | advanced | expert
   status      String   @default("open") // open | solved | archived
   views       Int      @default(0)
+  // JSON string array of { type:'image'|'file', name, mime, size, data }
+  // stored as text so attachments travel with the scenario (portable sharing).
+  attachments String?
   authorId    String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

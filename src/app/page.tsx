@@ -6,22 +6,24 @@ import { useAppStore } from '@/lib/store'
 import { SiteHeader } from '@/components/scenara/site-header'
 import { SiteFooter } from '@/components/scenara/site-footer'
 import { AuthView } from '@/components/scenara/views/auth-view'
-import { FeedView } from '@/components/scenara/views/feed-view'
+import { DashboardView } from '@/components/scenara/views/dashboard-view'
+import { TechStackView } from '@/components/scenara/views/tech-stack-view'
 import { DetailView } from '@/components/scenara/views/detail-view'
-import { ComposeView } from '@/components/scenara/views/compose-view'
+import { ComposeModal } from '@/components/scenara/compose-modal'
 import { Logo } from '@/components/scenara/logo'
 import { Flame } from 'lucide-react'
 
 export default function Home() {
   const { isAuthenticated, isLoading } = useAuth()
-  const { view, selectedScenarioId, goFeed } = useAppStore()
+  const { view, selectedScenarioId, selectedTechSlug, goDashboard, composerOpen } =
+    useAppStore()
 
-  // If the user signs out while on a non-feed view, snap back to feed.
+  // If the user signs out while on a non-dashboard view, snap back.
   useEffect(() => {
-    if (!isAuthenticated && view !== 'feed') {
-      goFeed()
+    if (!isAuthenticated && view !== 'dashboard') {
+      goDashboard()
     }
-  }, [isAuthenticated, view, goFeed])
+  }, [isAuthenticated, view, goDashboard])
 
   if (isLoading) {
     return (
@@ -53,13 +55,16 @@ export default function Home() {
     <div className="flex min-h-screen flex-col">
       <SiteHeader onShowAuth={() => {}} />
       <main className="flex-1">
-        {view === 'feed' && <FeedView />}
+        {view === 'dashboard' && <DashboardView />}
+        {view === 'techStack' && selectedTechSlug && (
+          <TechStackView techSlug={selectedTechSlug} />
+        )}
         {view === 'detail' && selectedScenarioId && (
           <DetailView scenarioId={selectedScenarioId} />
         )}
-        {view === 'compose' && <ComposeView />}
       </main>
       <SiteFooter />
+      {composerOpen && <ComposeModal />}
     </div>
   )
 }

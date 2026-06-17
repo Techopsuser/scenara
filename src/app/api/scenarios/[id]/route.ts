@@ -1,8 +1,26 @@
 import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { getCurrentUserId } from '@/lib/session'
+import type { Attachment } from '@/lib/types'
 
 export const dynamic = 'force-dynamic'
+
+function parseAttachments(raw: string | null | undefined): Attachment[] {
+  if (!raw) return []
+  try {
+    const parsed = JSON.parse(raw)
+    if (!Array.isArray(parsed)) return []
+    return parsed.filter(
+      (a) =>
+        a &&
+        (a.type === 'image' || a.type === 'file') &&
+        typeof a.name === 'string' &&
+        typeof a.data === 'string'
+    ) as Attachment[]
+  } catch {
+    return []
+  }
+}
 
 // GET /api/scenarios/[id]
 export async function GET(
@@ -64,6 +82,8 @@ export async function GET(
     myVote: sol.votes?.[0]?.value ?? 0,
   }))
 
+  const attachments = parseAttachments(scenario.attachments)
+
   return NextResponse.json({
     scenario: {
       id: scenario.id,
@@ -77,6 +97,9 @@ export async function GET(
       updatedAt: scenario.updatedAt,
       author: scenario.author,
       technologies: scenario.technologies.map((t) => t.technology),
+      attachments,
+      hasAttachments: attachments.length > 0,
+      attachmentsCount: attachments.length,
       solutions,
       netVotes,
       myVote: scenario.votes?.[0]?.value ?? 0,
