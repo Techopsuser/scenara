@@ -80,3 +80,26 @@ Stage Summary:
 - VLM design review: dashboard 8/10 (all sections present, modern/sleek, red & black consistent).
 - Attachments are portable: stored as base64 data URLs in DB, render inline on detail page, downloadable for files.
 - Live stats auto-refresh every 15s for real-time feel.
+
+---
+Task ID: main-v3
+Agent: Z.ai Code (orchestrator)
+Task: Remove predefined scenarios, ensure live-data only, redesign tech stack section with official logos + animations, fix scenario creation box scrolling
+
+Work Log:
+- Created prisma/cleanup.ts and ran it: deleted all 5 predefined/manual scenarios, 4 solutions, 1 vote, 14 scenario-tech links, and the seed demo user. Kept 121 technologies + real registered users. DB now has 0 scenarios (live-data only).
+- Built src/lib/tech-logos.ts: maps 120+ technology names to official Simple Icons slugs. Uses Iconify API (https://api.iconify.design/simple-icons:{slug}.svg?color=ffffff) instead of cdn.simpleicons.org because the latter returns 403 in the sandbox. White logos for visibility on the dark theme.
+- Built TechLogo component (src/components/scenara/tech-logo.tsx): renders official logo img with onError fallback to a letter avatar; supports container styling and a fallbackIcon prop.
+- Redesigned the "Available tech stacks" grid in DashboardView: each tech now shows its official logo in a card with framer-motion staggered fade-in/scale animations, hover lift + scale + rotate, and a shimmer sweep effect on hover. Category sections animate in on scroll (whileInView).
+- Updated "Most viewed tech stacks" cards: replaced generic Cpu icon with official TechLogo; added framer-motion staggered entrance + whileHover lift.
+- Updated TechStackView header to show the official logo (with Cpu fallback) for the selected stack.
+- Improved empty states (EmptyRow) with icon, title, message, and CTA button — graceful when no scenarios exist yet.
+- Fixed compose modal scrollability: restructured to flex column with fixed header (shrink-0), scrollable body (min-h-0 flex-1 overflow-y-auto), and fixed footer (shrink-0, bg-background/95 backdrop-blur). Verified scrollHeight 1601 > clientHeight 494 with header+footer staying visible while body scrolls.
+- Trending scenarios section also wrapped in framer-motion staggered animation.
+
+Stage Summary:
+- Lint passes with 0 errors/warnings. Dev server clean (no errors/warnings in log).
+- Agent Browser E2E verified: login → dashboard shows empty states ("No stack activity yet", "No scenarios yet") for live-data-only → Available tech stacks grid renders 121 official logos (117/117 loaded, 0 errors) → tech stack detail page shows official logo in header.
+- Compose modal: opened at 1280x720, filled long content, confirmed body scrolls (canScroll=true) while header ("Share a scenario") and footer (Cancel/Publish) stay fixed and visible.
+- VLM design review: tech stacks grid with logos rated 9/10 (official logos visible, clean modern grid, clear categories, no issues).
+- Platform is now 100% live-data: no predefined scenarios. Tech stack section uses official brand logos with smooth framer-motion animations.

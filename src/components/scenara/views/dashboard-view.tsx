@@ -2,8 +2,10 @@
 
 import { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import { motion } from 'framer-motion'
 import { ScenarioCard } from '@/components/scenara/scenario-card'
 import { AnimatedNumber } from '@/components/scenara/animated-number'
+import { TechLogo } from '@/components/scenara/tech-logo'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Input } from '@/components/ui/input'
@@ -13,6 +15,7 @@ import { api } from '@/lib/api'
 import { TECH_CATEGORIES } from '@/lib/types'
 import { useAuth } from '@/hooks/use-auth'
 import { formatCount } from '@/lib/format'
+import { getTechLogoUrl } from '@/lib/tech-logos'
 import {
   Flame,
   Plus,
@@ -26,7 +29,6 @@ import {
   ArrowRight,
   Activity,
   Search,
-  Cpu,
   Sparkles,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -43,14 +45,7 @@ export function DashboardView() {
     queryFn: () => api.listScenarios({ sort: 'popular', limit: 6 }),
   })
 
-  // Recent scenarios (for "latest" strip)
-  const { data: recent } = useQuery({
-    queryKey: ['scenarios', { sort: 'recent', limit: 4 }],
-    queryFn: () => api.listScenarios({ sort: 'recent', limit: 4 }),
-  })
-
   const trendingScenarios = trending?.scenarios ?? []
-  const recentScenarios = recent?.scenarios ?? []
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8">
@@ -139,18 +134,33 @@ export function DashboardView() {
             ))}
           </div>
         ) : topStacks && topStacks.length > 0 ? (
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <motion.div
+            className="grid grid-cols-2 gap-3 sm:grid-cols-4"
+            initial="hidden"
+            animate="show"
+            variants={{
+              hidden: {},
+              show: { transition: { staggerChildren: 0.06 } },
+            }}
+          >
             {topStacks.map((stack, i) => (
-              <button
+              <motion.button
                 key={stack.id}
                 onClick={() => openTechStack(stack.slug)}
-                className="card-hover group relative overflow-hidden rounded-xl border border-border/60 bg-card/50 p-4 text-left backdrop-blur-sm hover:glow-ember-sm"
+                variants={{
+                  hidden: { opacity: 0, y: 14 },
+                  show: { opacity: 1, y: 0 },
+                }}
+                whileHover={{ y: -4, scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                className="group relative overflow-hidden rounded-xl border border-border/60 bg-card/50 p-4 text-left backdrop-blur-sm hover:border-primary/50 hover:glow-ember-sm"
               >
-                <div className="pointer-events-none absolute right-2 top-2 text-3xl font-bold text-primary/10 transition-colors group-hover:text-primary/20">
+                <div className="pointer-events-none absolute right-2 top-2 text-3xl font-bold text-primary/10 transition-colors group-hover:text-primary/25">
                   {String(i + 1).padStart(2, '0')}
                 </div>
-                <div className="mb-3 grid h-9 w-9 place-items-center rounded-lg border border-primary/30 bg-primary/10">
-                  <Cpu className="h-4 w-4 text-primary" />
+                <div className="mb-3 transition-transform duration-300 group-hover:scale-110">
+                  <TechLogo name={stack.name} size={28} />
                 </div>
                 <div className="truncate text-sm font-semibold text-foreground">
                   {stack.name}
@@ -168,11 +178,21 @@ export function DashboardView() {
                     {formatCount(stack.totalViews)}
                   </span>
                 </div>
-              </button>
+              </motion.button>
             ))}
-          </div>
+          </motion.div>
         ) : (
-          <EmptyRow message="No stack activity yet. Be the first to post!" />
+          <EmptyRow
+            icon={TrendingUp}
+            title="No stack activity yet"
+            message="Once scenarios are posted, the most-viewed tech stacks will appear here."
+            action={
+              <Button onClick={openComposer} size="sm" className="mt-3">
+                <Plus className="h-4 w-4" />
+                Post a scenario
+              </Button>
+            }
+          />
         )}
       </section>
 
@@ -183,7 +203,7 @@ export function DashboardView() {
           title="Trending scenarios"
           subtitle="What's hot — ranked by views"
           action={
-            recentScenarios.length > 0 ? (
+            trendingScenarios.length > 0 ? (
               <Button
                 variant="ghost"
                 size="sm"
@@ -203,17 +223,43 @@ export function DashboardView() {
             ))}
           </div>
         ) : trendingScenarios.length > 0 ? (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <motion.div
+            className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+            initial="hidden"
+            animate="show"
+            variants={{
+              hidden: {},
+              show: { transition: { staggerChildren: 0.07 } },
+            }}
+          >
             {trendingScenarios.map((s) => (
-              <ScenarioCard key={s.id} scenario={s} />
+              <motion.div
+                key={s.id}
+                variants={{
+                  hidden: { opacity: 0, y: 16 },
+                  show: { opacity: 1, y: 0 },
+                }}
+              >
+                <ScenarioCard scenario={s} />
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         ) : (
-          <EmptyRow message="No scenarios yet. Post the first one!" />
+          <EmptyRow
+            icon={Activity}
+            title="No scenarios yet"
+            message="Be the first engineer to share a real production scenario."
+            action={
+              <Button onClick={openComposer} size="sm" className="mt-3">
+                <Plus className="h-4 w-4" />
+                Post the first scenario
+              </Button>
+            }
+          />
         )}
       </section>
 
-      {/* ─── Available tech stacks grid ─── */}
+      {/* ─── Available tech stacks grid (redesigned with logos + animation) ─── */}
       <AvailableTechStacksSection />
     </div>
   )
@@ -249,7 +295,7 @@ function AvailableTechStacksSection() {
       <SectionHeader
         icon={Layers}
         title="Available tech stacks"
-        subtitle="120+ technologies. Click any stack to see its scenarios."
+        subtitle="120+ technologies with official logos. Click any stack to see its scenarios."
         action={
           <div className="relative w-40 sm:w-56">
             <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
@@ -264,33 +310,65 @@ function AvailableTechStacksSection() {
       />
 
       {grouped.length === 0 ? (
-        <EmptyRow message={`No stacks match "${query}"`} />
+        <EmptyRow
+          icon={Search}
+          title="No matches"
+          message={`No tech stacks match "${query}".`}
+        />
       ) : (
-        <div className="space-y-5">
-          {grouped.map((g) => (
-            <div key={g.category}>
-              <div className="mb-2 flex items-center gap-2">
+        <div className="space-y-6">
+          {grouped.map((g, gi) => (
+            <motion.div
+              key={g.category}
+              initial={{ opacity: 0, y: 12 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-40px' }}
+              transition={{ duration: 0.4, delay: gi * 0.03 }}
+            >
+              <div className="mb-3 flex items-center gap-2">
                 <Sparkles className="h-3.5 w-3.5 text-primary/70" />
                 <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                   {g.category}
                 </h3>
-                <span className="text-[11px] text-muted-foreground/60">
+                <span className="rounded-full bg-secondary/60 px-1.5 text-[10px] text-muted-foreground">
                   {g.items.length}
                 </span>
               </div>
-              <div className="flex flex-wrap gap-2">
+              <motion.div
+                className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5"
+                initial="hidden"
+                whileInView="show"
+                viewport={{ once: true, margin: '-40px' }}
+                variants={{
+                  hidden: {},
+                  show: { transition: { staggerChildren: 0.03 } },
+                }}
+              >
                 {g.items.map((t) => (
-                  <button
+                  <motion.button
                     key={t.id}
                     onClick={() => openTechStack(t.slug)}
-                    className="card-hover inline-flex items-center gap-1.5 rounded-lg border border-border/60 bg-card/40 px-3 py-1.5 text-xs font-medium text-foreground backdrop-blur-sm hover:border-primary/40 hover:text-primary"
+                    variants={{
+                      hidden: { opacity: 0, scale: 0.92 },
+                      show: { opacity: 1, scale: 1 },
+                    }}
+                    whileHover={{ y: -3, scale: 1.03 }}
+                    whileTap={{ scale: 0.97 }}
+                    transition={{ type: 'spring', stiffness: 320, damping: 18 }}
+                    className="group relative flex flex-col items-center gap-2 overflow-hidden rounded-xl border border-border/60 bg-card/40 p-3 backdrop-blur-sm hover:border-primary/50 hover:bg-primary/[0.04] hover:glow-ember-sm"
                   >
-                    <span className="h-1.5 w-1.5 rounded-full bg-primary/60" />
-                    {t.name}
-                  </button>
+                    {/* shimmer sweep on hover */}
+                    <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-primary/10 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
+                    <div className="transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-3">
+                      <TechLogo name={t.name} size={32} />
+                    </div>
+                    <span className="line-clamp-1 text-center text-[11px] font-medium text-foreground/90">
+                      {t.name}
+                    </span>
+                  </motion.button>
                 ))}
-              </div>
-            </div>
+              </motion.div>
+            </motion.div>
           ))}
         </div>
       )}
@@ -376,10 +454,28 @@ function StatCard({
   )
 }
 
-function EmptyRow({ message }: { message: string }) {
+function EmptyRow({
+  icon: Icon,
+  title,
+  message,
+  action,
+}: {
+  icon: React.ComponentType<{ className?: string }>
+  title: string
+  message: string
+  action?: React.ReactNode
+}) {
   return (
-    <div className="rounded-xl border border-dashed border-border/60 bg-card/20 px-6 py-10 text-center text-sm text-muted-foreground">
-      {message}
+    <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border/60 bg-card/20 px-6 py-10 text-center">
+      <div className="relative mb-3">
+        <div className="absolute inset-0 rounded-full bg-primary/20 blur-xl" />
+        <div className="relative grid h-12 w-12 place-items-center rounded-2xl border border-primary/30 bg-primary/10">
+          <Icon className="h-5 w-5 text-primary" />
+        </div>
+      </div>
+      <h3 className="text-base font-semibold text-foreground">{title}</h3>
+      <p className="mt-1 max-w-sm text-sm text-muted-foreground">{message}</p>
+      {action}
     </div>
   )
 }

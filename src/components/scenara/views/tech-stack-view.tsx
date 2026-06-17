@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { ScenarioCard } from '@/components/scenara/scenario-card'
+import { TechLogo } from '@/components/scenara/tech-logo'
 import { useAppStore } from '@/lib/store'
 import { api } from '@/lib/api'
 import {
@@ -81,9 +82,11 @@ export function TechStackView({ techSlug }: { techSlug: string }) {
         <div className="pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full bg-primary/15 blur-[90px]" />
         <div className="relative flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
           <div className="flex items-center gap-4">
-            <div className="relative grid h-14 w-14 place-items-center rounded-2xl border border-primary/40 bg-primary/10">
+            <div className="relative grid h-16 w-16 place-items-center rounded-2xl border border-primary/40 bg-primary/10">
               <div className="absolute inset-0 rounded-2xl bg-primary/20 blur-md" />
-              <Cpu className="relative h-7 w-7 text-primary" />
+              <div className="relative">
+                <TechLogo name={tech?.name ?? techSlug} size={40} container={false} fallbackIcon={Cpu} />
+              </div>
             </div>
             <div>
               <div className="mb-1 inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary">

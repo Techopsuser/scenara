@@ -228,9 +228,9 @@ export function ComposeModal() {
 
   return (
     <Dialog open={composerOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-h-[92vh] overflow-hidden border-border bg-background p-0 sm:max-w-2xl">
-        {/* Header — LinkedIn/Facebook style composer */}
-        <DialogHeader className="border-b border-border px-5 py-4">
+      <DialogContent className="flex max-h-[92vh] flex-col overflow-hidden border-border bg-background p-0 sm:max-w-2xl">
+        {/* Header — LinkedIn/Facebook style composer (fixed) */}
+        <DialogHeader className="shrink-0 border-b border-border px-5 py-4">
           <DialogTitle className="flex items-center gap-2 text-lg">
             <Flame className="h-5 w-5 text-primary" />
             Share a scenario
@@ -250,9 +250,10 @@ export function ComposeModal() {
 
         <form
           onSubmit={handleSubmit}
-          className="flex min-h-0 flex-1 flex-col overflow-y-auto"
+          className="flex min-h-0 flex-1 flex-col"
         >
-          <div className="space-y-4 px-5 py-4">
+          {/* Scrollable body — users can scroll through all fields */}
+          <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4">
             {/* tips */}
             <div className="flex gap-2 rounded-lg border border-primary/20 bg-primary/[0.04] p-3">
               <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
@@ -506,8 +507,8 @@ export function ComposeModal() {
             </div>
           </div>
 
-          {/* footer actions */}
-          <div className="flex items-center justify-between gap-2 border-t border-border px-5 py-3">
+          {/* footer actions (fixed at bottom — does not scroll) */}
+          <div className="flex shrink-0 items-center justify-between gap-2 border-t border-border bg-background/95 px-5 py-3 backdrop-blur">
             <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
               <Sparkles className="h-3 w-3 text-primary/70" />
               Attachments travel with the scenario for portable sharing.
