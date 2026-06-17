@@ -94,6 +94,13 @@ export const api = {
     return jsonFetch<{ scenario: ScenarioDetail }>(`/api/scenarios/${id}`)
   },
 
+  async deleteScenario(id: string) {
+    return jsonFetch<{ ok: boolean; id: string }>(
+      `/api/scenarios/${id}`,
+      { method: 'DELETE' }
+    )
+  },
+
   async createScenario(input: {
     title: string
     summary: string

@@ -16,6 +16,7 @@ import {
   SolutionSubmitCTA,
 } from '@/components/scenara/solution-card'
 import { SolutionComposer } from '@/components/scenara/solution-composer'
+import { DeleteScenarioButton } from '@/components/scenara/delete-scenario-button'
 import { useAppStore } from '@/lib/store'
 import { api } from '@/lib/api'
 import { useAuth } from '@/hooks/use-auth'
@@ -144,6 +145,12 @@ export function DetailView({ scenarioId }: { scenarioId: string }) {
                   count={scenario.netVotes}
                   scenarioId={scenario.id}
                 />
+                {scenario.isAuthor && (
+                  <DeleteScenarioButton
+                    scenarioId={scenario.id}
+                    onDeleted={goDashboard}
+                  />
+                )}
               </div>
             </div>
 

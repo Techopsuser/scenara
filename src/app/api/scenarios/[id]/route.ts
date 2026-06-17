@@ -107,3 +107,43 @@ export async function GET(
     },
   })
 }
+
+// DELETE /api/scenarios/[id] — only the scenario author can delete.
+// Cascades to solutions, votes and scenario-technology links.
+export async function DELETE(
+  _req: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params
+  const userId = await getCurrentUserId()
+  if (!userId) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  const scenario = await db.scenario.findUnique({
+    where: { id },
+    select: { id: true, authorId: true },
+  })
+  if (!scenario) {
+    return NextResponse.json({ error: 'Scenario not found' }, { status: 404 })
+  }
+  if (scenario.authorId !== userId) {
+    return NextResponse.json(
+      { error: 'You can only delete your own scenarios' },
+      { status: 403 }
+    )
+  }
+
+  try {
+    // Relies on onDelete: Cascade in the Prisma schema for Vote, Solution
+    // and ScenarioTechnology linked to this scenario.
+    await db.scenario.delete({ where: { id } })
+    return NextResponse.json({ ok: true, id })
+  } catch (err) {
+    console.error('[scenarios DELETE] error', err)
+    return NextResponse.json(
+      { error: 'Failed to delete scenario' },
+      { status: 500 }
+    )
+  }
+}

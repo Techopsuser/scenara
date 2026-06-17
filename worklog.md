@@ -103,3 +103,21 @@ Stage Summary:
 - Compose modal: opened at 1280x720, filled long content, confirmed body scrolls (canScroll=true) while header ("Share a scenario") and footer (Cancel/Publish) stay fixed and visible.
 - VLM design review: tech stacks grid with logos rated 9/10 (official logos visible, clean modern grid, clear categories, no issues).
 - Platform is now 100% live-data: no predefined scenarios. Tech stack section uses official brand logos with smooth framer-motion animations.
+
+---
+Task ID: main-v4
+Agent: Z.ai Code (orchestrator)
+Task: Add delete option for scenario authors + add a richer footer to the page
+
+Work Log:
+- Added DELETE handler to /api/scenarios/[id]/route.ts: author-only (checks authorId === userId, returns 403 otherwise), cascades to solutions/votes/scenario-tech links via Prisma onDelete: Cascade, returns {ok, id} on success.
+- Added deleteScenario(id) method to the api client (src/lib/api.ts).
+- Built DeleteScenarioButton component (src/components/scenara/delete-scenario-button.tsx): ghost button with trash icon → opens AlertDialog confirmation ("Delete this scenario?") with destructive styling, loading state, invalidates scenarios/stats queries + removes the detail query on success, calls onDeleted callback.
+- Wired the delete button into DetailView header actions row — only rendered when scenario.isAuthor is true; onDeleted navigates back to dashboard.
+- Redesigned SiteFooter from a minimal single-row footer into a rich 4-column layout: Brand column (logo + tagline + 4 social links: GitHub/Twitter/LinkedIn/Email), Platform column (Dashboard/Trending/Top solutions/Post), Tech stacks column (first 6 categories), Resources column (How it works/Guidelines/API/Privacy/Terms). Bottom bar with © year + "Built for engineers, by engineers" with a filled heart icon. Kept mt-auto sticky-bottom behavior.
+
+Stage Summary:
+- Lint passes with 0 errors/warnings. Dev server clean.
+- Agent Browser E2E verified: login → posted a test scenario → detail page shows "Delete" button (author only) → clicked Delete → confirmation dialog "Delete this scenario?" opened → confirmed → DELETE /api/scenarios/[id] returned 200 → redirected to dashboard → scenario removed. No console/runtime errors.
+- Footer verified: 4-column layout renders at bottom of page, pushed down naturally on long pages, sticky on short pages (mt-auto + min-h-screen flex flex-col). VLM rated 8/10 (polished, matches red & black theme).
+- Delete is author-only: the API returns 403 if a non-author attempts deletion; the button only renders for the scenario author.
