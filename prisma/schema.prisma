@@ -1,5 +1,3 @@
-// Prisma schema for ScenarioForge - tech scenario sharing platform
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -9,24 +7,22 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ─── NextAuth models ───────────────────────────────────────────────
 model User {
-  id            String    @id @default(cuid())
-  email         String    @unique
-  name          String?
-  image         String?
-  passwordHash  String?
-  bio           String?
-  role          String    @default("member")
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-
-  accounts      Account[]
-  sessions      Session[]
-  scenarios     Scenario[]
-  solutions     Solution[]
-  votes         Vote[]
-  technologies  Technology[]
+  id           String       @id @default(cuid())
+  email        String       @unique
+  name         String?
+  image        String?
+  passwordHash String?
+  bio          String?
+  role         String       @default("member")
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  accounts     Account[]
+  scenarios    Scenario[]
+  sessions     Session[]
+  solutions    Solution[]
+  technologies Technology[]
+  votes        Vote[]
 }
 
 model Account {
@@ -42,8 +38,7 @@ model Account {
   scope             String?
   id_token          String?
   session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }
@@ -53,8 +48,7 @@ model Session {
   sessionToken String   @unique
   userId       String
   expires      DateTime
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model VerificationToken {
@@ -65,43 +59,37 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
-// ─── Domain models ─────────────────────────────────────────────────
-
 model Technology {
-  id         String   @id @default(cuid())
-  name       String   @unique
-  slug       String   @unique
-  category   String
-  icon       String?
-  createdAt  DateTime @default(now())
+  id          String               @id @default(cuid())
+  name        String               @unique
+  slug        String               @unique
+  category    String
+  icon        String?
+  createdAt   DateTime             @default(now())
   createdById String?
-
-  creator    User?         @relation(fields: [createdById], references: [id], onDelete: SetNull)
-  scenarios  ScenarioTechnology[]
+  scenarios   ScenarioTechnology[]
+  creator     User?                @relation(fields: [createdById], references: [id])
 
   @@index([category])
   @@index([slug])
 }
 
 model Scenario {
-  id          String   @id @default(cuid())
-  title       String
-  summary     String
-  content     String
-  difficulty  String   @default("intermediate") // beginner | intermediate | advanced | expert
-  status      String   @default("open") // open | solved | archived
-  views       Int      @default(0)
-  // JSON string array of { type:'image'|'file', name, mime, size, data }
-  // stored as text so attachments travel with the scenario (portable sharing).
-  attachments String?
-  authorId    String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  author      User                @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  id           String               @id @default(cuid())
+  title        String
+  summary      String
+  content      String
+  difficulty   String               @default("intermediate")
+  status       String               @default("open")
+  views        Int                  @default(0)
+  authorId     String
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+  attachments  String?
+  author       User                 @relation(fields: [authorId], references: [id], onDelete: Cascade)
   technologies ScenarioTechnology[]
-  solutions   Solution[]
-  votes       Vote[]
+  solutions    Solution[]
+  votes        Vote[]
 
   @@index([authorId])
   @@index([difficulty])
@@ -112,9 +100,8 @@ model Scenario {
 model ScenarioTechnology {
   scenarioId   String
   technologyId String
-
-  scenario   Scenario   @relation(fields: [scenarioId], references: [id], onDelete: Cascade)
-  technology Technology @relation(fields: [technologyId], references: [id], onDelete: Cascade)
+  technology   Technology @relation(fields: [technologyId], references: [id], onDelete: Cascade)
+  scenario     Scenario   @relation(fields: [scenarioId], references: [id], onDelete: Cascade)
 
   @@id([scenarioId, technologyId])
 }
@@ -130,9 +117,8 @@ model Solution {
   upvotes     Int      @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-
-  scenario    Scenario @relation(fields: [scenarioId], references: [id], onDelete: Cascade)
   author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  scenario    Scenario @relation(fields: [scenarioId], references: [id], onDelete: Cascade)
   votes       Vote[]
 
   @@index([scenarioId])
@@ -140,18 +126,15 @@ model Solution {
 }
 
 model Vote {
-  id        String   @id @default(cuid())
-  userId    String
-  value     Int      // +1 or -1
-  createdAt DateTime @default(now())
-
-  // Exactly one of these will be set
+  id         String    @id @default(cuid())
+  userId     String
+  value      Int
+  createdAt  DateTime  @default(now())
   scenarioId String?
   solutionId String?
-
-  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  scenario Scenario? @relation(fields: [scenarioId], references: [id], onDelete: Cascade)
-  solution Solution? @relation(fields: [solutionId], references: [id], onDelete: Cascade)
+  solution   Solution? @relation(fields: [solutionId], references: [id], onDelete: Cascade)
+  scenario   Scenario? @relation(fields: [scenarioId], references: [id], onDelete: Cascade)
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, scenarioId])
   @@unique([userId, solutionId])
