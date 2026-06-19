@@ -136,7 +136,7 @@ export function DetailView({ scenarioId }: { scenarioId: string }) {
                 </span>
                 <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
                   <MessageSquare className="h-3.5 w-3.5" />
-                  {formatCount(scenario.solutions.length)}
+                  {formatCount((scenario.solutions?.length ?? 0))}
                 </span>
                 <VoteButton
                   targetType="scenario"
@@ -155,9 +155,9 @@ export function DetailView({ scenarioId }: { scenarioId: string }) {
             </div>
 
             {/* tech tags */}
-            {scenario.technologies.length > 0 && (
+            {(scenario.technologies?.length ?? 0) > 0 && (
               <div className="mt-4 flex flex-wrap gap-1.5">
-                {scenario.technologies.map((t) => (
+                {(scenario.technologies ?? []).map((t) => (
                   <TechBadge
                     key={t.id}
                     tech={t}
@@ -174,7 +174,7 @@ export function DetailView({ scenarioId }: { scenarioId: string }) {
         <div className="mt-5 rounded-xl border border-border/60 bg-card/30 p-5 backdrop-blur-sm sm:p-6">
           <Markdown>{scenario.content}</Markdown>
 
-          {scenario.attachments.length > 0 && (
+          {scenario.attachments?.length > 0 && (
             <div className="mt-5 border-t border-border/60 pt-4">
               <div className="mb-3 flex items-center gap-2 text-xs font-medium text-muted-foreground">
                 <Paperclip className="h-3.5 w-3.5 text-primary" />
@@ -192,8 +192,8 @@ export function DetailView({ scenarioId }: { scenarioId: string }) {
             <h2 className="flex items-center gap-2 text-lg font-semibold">
               <Lightbulb className="h-5 w-5 text-primary" />
               Solutions
-              <span className="rounded-full bg-secondary px-2 py-0.5 text-xs font-medium text-muted-foreground">
-                {scenario.solutions.length}
+                 <span className="rounded-full bg-secondary px-2 py-0.5 text-xs font-medium text-muted-foreground">
+                {(scenario.solutions?.length ?? 0)}
               </span>
             </h2>
             {isAuthenticated && !scenario.isAuthor && (
@@ -204,7 +204,7 @@ export function DetailView({ scenarioId }: { scenarioId: string }) {
             )}
           </div>
 
-          {scenario.solutions.length === 0 ? (
+          {(scenario.solutions?.length ?? 0) === 0 ? (
             <SolutionSubmitCTA
               onCompose={() =>
                 isAuthenticated
@@ -215,7 +215,7 @@ export function DetailView({ scenarioId }: { scenarioId: string }) {
             />
           ) : (
             <div className="space-y-4">
-              {scenario.solutions.map((sol) => (
+              {(scenario.solutions ?? []).map((sol) => (
                 <SolutionCard
                   key={sol.id}
                   solution={sol}
