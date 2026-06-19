@@ -1,0 +1,83 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String     @id @default(cuid())
+  name      String?
+  email     String?    @unique
+  emailVerified DateTime?
+  image     String?
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  scenarios Scenario[]
+  solutions Solution[]
+  votes     Vote[]
+}
+
+model Scenario {
+  id          String   @id @default(cuid())
+  title       String
+  summary     String?
+  content     String
+  difficulty  String
+  status      String   @default("draft")
+  views       Int      @default(0)
+  authorId    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  author       User                @relation(fields: [authorId], references: [id])
+  technologies ScenarioTechnology[]
+  solutions    Solution[]
+  votes        Vote[]
+}
+
+model Technology {
+  id        String                @id @default(cuid())
+  name      String
+  slug      String                @unique
+  category  String?
+
+  scenarios ScenarioTechnology[]
+}
+
+model ScenarioTechnology {
+  scenarioId   String
+  technologyId String
+
+  scenario   Scenario   @relation(fields: [scenarioId], references: [id], onDelete: Cascade)
+  technology Technology @relation(fields: [technologyId], references: [id], onDelete: Cascade)
+
+  @@id([scenarioId, technologyId])
+}
+
+model Solution {
+  id         String   @id @default(cuid())
+  content    String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  authorId   String
+  scenarioId String
+
+  author   User     @relation(fields: [authorId], references: [id])
+  scenario Scenario @relation(fields: [scenarioId], references: [id], onDelete: Cascade)
+}
+
+model Vote {
+  id         String @id @default(cuid())
+  value      Int
+  userId     String
+  scenarioId String
+
+  user     User     @relation(fields: [userId], references: [id])
+  scenario Scenario @relation(fields: [scenarioId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, scenarioId])
+}

@@ -90,11 +90,8 @@ model Scenario {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  // Add this line right here:
-  attachments Json?    
-
   author       User                @relation(fields: [authorId], references: [id])
-  technologies ScenarioTechnology[]
+  technologies ScenarioTechnology[] // <--- THIS LINE IS MISSING ON YOUR VERCEL BUILD
   solutions    Solution[]
 }
 
