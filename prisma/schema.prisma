@@ -78,20 +78,20 @@ model Technology {
 }
 
 model Scenario {
-  id         String   @id @default(cuid())
-  title      String
-  summary    String
-  content    String
-  difficulty String   @default("intermediate")
-  status     String   @default("open")
-  views      Int      @default(0)
-  authorId   String
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id          String   @id @default(cuid())
+  title       String
+  summary     String
+  content     String
+  difficulty  String   @default("intermediate")
+  status      String   @default("open")
+  views       Int      @default(0)
+  authorId    String
+  attachments Json?    // Add this line (use Json? for flexible data, or String? if it's just a URL)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
-
-  solutions Solution[] // ✅ ADD THIS LINE (IMPORTANT)
+  author    User       @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  solutions Solution[] 
 
   @@index([authorId])
 }
