@@ -28,7 +28,6 @@ export async function GET(req: Request) {
       name: true,
       slug: true,
       category: true,
-      icon: true,
     },
   })
 
@@ -61,7 +60,6 @@ export async function POST(req: Request) {
         { status: 400 }
       )
     }
-
     // Case-insensitive duplicate check (SQLite is case-sensitive for @unique,
     // so we manually check first for a friendlier error).
     const existing = await db.technology.findFirst({
