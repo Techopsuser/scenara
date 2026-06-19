@@ -4,7 +4,6 @@ import { getCurrentUserId } from '@/lib/session'
 
 export const dynamic = 'force-dynamic'
 
-// POST /api/scenarios/[id]/solutions  { content, codeSnippet, language }
 export async function POST(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -26,8 +25,6 @@ export async function POST(
   try {
     const body = await req.json()
     const content = String(body?.content ?? '').trim()
-    const codeSnippet = body?.codeSnippet ? String(body.codeSnippet).trim() : null
-    const language = body?.language ? String(body.language).trim() : null
 
     if (!content || content.length < 20) {
       return NextResponse.json(
@@ -41,8 +38,6 @@ export async function POST(
         scenarioId: id,
         authorId: userId,
         content,
-        codeSnippet,
-        language,
       },
       include: {
         author: {
