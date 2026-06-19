@@ -7,28 +7,23 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// =========================================
-// AUTHENTICATION MODELS (NextAuth)
-// =========================================
-
 model User {
-  id            String    @id @default(cuid())
+  id            String     @id @default(cuid())
+  email         String     @unique
   name          String?
-  email         String    @unique
-  emailVerified DateTime?
   image         String?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  emailVerified DateTime?
+  role          String     @default("user")
   passwordHash  String?
-  role          String    @default("user")   // <--- ADD THIS EXACT LINE
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-
-  accounts Account[]
-  sessions Session[]
-
-  scenarios Scenario[]
-  solutions Solution[]
-  votes     Vote[]
+  accounts      Account[]
+  scenarios     Scenario[]
+  sessions      Session[]
+  solutions     Solution[]
+  votes         Vote[]
 }
+
 model Account {
   id                String  @id @default(cuid())
   userId            String
@@ -42,8 +37,7 @@ model Account {
   scope             String?
   id_token          String?
   session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }
@@ -53,8 +47,7 @@ model Session {
   sessionToken String   @unique
   userId       String
   expires      DateTime
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model VerificationToken {
@@ -65,67 +58,58 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
-// =========================================
-// APP MODELS (Scenarios, Tech, etc.)
-// =========================================
-
 model Scenario {
-  id          String   @id @default(cuid())
-  title       String
-  summary     String?
-  content     String
-  difficulty  String
-  status      String   @default("draft")
-  views       Int      @default(0)
-  authorId    String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  author       User                @relation(fields: [authorId], references: [id])
+  id           String               @id @default(cuid())
+  title        String
+  summary      String?
+  content      String
+  difficulty   String
+  status       String               @default("draft")
+  views        Int                  @default(0)
+  authorId     String
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+  author       User                 @relation(fields: [authorId], references: [id])
   technologies ScenarioTechnology[]
   solutions    Solution[]
   votes        Vote[]
 }
 
 model Technology {
-  id        String                @id @default(cuid())
+  id        String               @id @default(cuid())
   name      String
-  slug      String                @unique
+  slug      String               @unique
   category  String?
-
   scenarios ScenarioTechnology[]
 }
 
 model ScenarioTechnology {
   scenarioId   String
   technologyId String
-
-  scenario   Scenario   @relation(fields: [scenarioId], references: [id], onDelete: Cascade)
-  technology Technology @relation(fields: [technologyId], references: [id], onDelete: Cascade)
+  scenario     Scenario   @relation(fields: [scenarioId], references: [id], onDelete: Cascade)
+  technology   Technology @relation(fields: [technologyId], references: [id], onDelete: Cascade)
 
   @@id([scenarioId, technologyId])
 }
 
 model Solution {
   id         String   @id @default(cuid())
+  scenarioId String
+  authorId   String
   content    String
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
-  authorId   String
-  scenarioId String
-
-  author   User     @relation(fields: [authorId], references: [id])
-  scenario Scenario @relation(fields: [scenarioId], references: [id], onDelete: Cascade)
+  author     User     @relation(fields: [authorId], references: [id])
+  scenario   Scenario @relation(fields: [scenarioId], references: [id], onDelete: Cascade)
 }
 
 model Vote {
-  id         String @id @default(cuid())
-  value      Int
+  id         String   @id @default(cuid())
   userId     String
+  value      Int
   scenarioId String
-
-  user     User     @relation(fields: [userId], references: [id])
-  scenario Scenario @relation(fields: [scenarioId], references: [id], onDelete: Cascade)
+  scenario   Scenario @relation(fields: [scenarioId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id])
 
   @@unique([userId, scenarioId])
 }
