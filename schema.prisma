@@ -7,23 +7,26 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id           String   @id @default(cuid())
-  email        String   @unique
-  name         String?
-  image        String?
-  passwordHash String?
-  bio          String?
-  role         String   @default("member")
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+// =========================================
+// AUTHENTICATION MODELS (NextAuth)
+// =========================================
 
-  accounts     Account[]
-  scenarios    Scenario[]
-  sessions     Session[]
-  solutions    Solution[]
-  technologies Technology[]
-  votes        Vote[]
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts Account[]
+  sessions Session[]
+
+  scenarios Scenario[]
+  solutions Solution[]
+  votes     Vote[]
 }
 
 model Account {
@@ -56,27 +59,15 @@ model Session {
 
 model VerificationToken {
   identifier String
-  token      String   @unique
+  token      String
   expires    DateTime
 
   @@unique([identifier, token])
 }
 
-model Technology {
-  id          String   @id @default(cuid())
-  name        String   @unique
-  slug        String   @unique
-  category    String
-  icon        String?
-  createdAt   DateTime @default(now())
-  createdById String?
-
-  creator User? @relation(fields: [createdById], references: [id])
-
-  @@index([category])
-  @@index([slug])
-  scenarios  ScenarioTechnology[] 
-}
+// =========================================
+// APP MODELS (Scenarios, Tech, etc.)
+// =========================================
 
 model Scenario {
   id          String   @id @default(cuid())
@@ -91,36 +82,18 @@ model Scenario {
   updatedAt   DateTime @updatedAt
 
   author       User                @relation(fields: [authorId], references: [id])
-  technologies ScenarioTechnology[] // <--- THIS LINE IS MISSING ON YOUR VERCEL BUILD
+  technologies ScenarioTechnology[]
   solutions    Solution[]
+  votes        Vote[]
 }
 
-model Solution {
-  id          String   @id @default(cuid())
-  scenarioId  String
-  authorId    String
-  content     String
-  codeSnippet String?
-  language    String?
-  isAccepted  Boolean  @default(false)
-  upvotes     Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+model Technology {
+  id        String                @id @default(cuid())
+  name      String
+  slug      String                @unique
+  category  String?
 
-  author   User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  scenario Scenario @relation(fields: [scenarioId], references: [id], onDelete: Cascade)
-}
-
-model Vote {
-  id        String   @id @default(cuid())
-  userId    String
-  value     Int
-  createdAt DateTime @default(now())
-
-  scenarioId String?
-  solutionId String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  scenarios ScenarioTechnology[]
 }
 
 model ScenarioTechnology {
@@ -131,4 +104,28 @@ model ScenarioTechnology {
   technology Technology @relation(fields: [technologyId], references: [id], onDelete: Cascade)
 
   @@id([scenarioId, technologyId])
+}
+
+model Solution {
+  id         String   @id @default(cuid())
+  content    String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  authorId   String
+  scenarioId String
+
+  author   User     @relation(fields: [authorId], references: [id])
+  scenario Scenario @relation(fields: [scenarioId], references: [id], onDelete: Cascade)
+}
+
+model Vote {
+  id         String @id @default(cuid())
+  value      Int
+  userId     String
+  scenarioId String
+
+  user     User     @relation(fields: [userId], references: [id])
+  scenario Scenario @relation(fields: [scenarioId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, scenarioId])
 }
