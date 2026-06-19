@@ -161,16 +161,28 @@ const LOGO_MAP: Record<string, string> = {
 /**
  * Returns the logo URL for a technology via the Iconify API
  * (https://api.iconify.design), which serves official Simple Icons SVGs.
- * Logos are rendered in white so they are clearly visible on the dark
- * red/black theme. Returns null if the technology has no known logo mapping.
+ * Logos are rendered in their official Simple Icons brand colors.
+ * Returns null if the technology has no known logo mapping.
  *
  * Iconify is used instead of cdn.simpleicons.org because the latter blocks
  * requests with a 403 in some sandboxed environments.
  */
+// Slugs whose official brand color is pure/near-black and would be invisible
+// against the dark red/black theme. Forced to white for visibility.
+const DARK_BRANDS = new Set([
+  'rust',
+  'bun',
+  'express',
+  'nextdotjs',
+  'github',
+  'flask',
+])
+
 export function getTechLogoUrl(name: string): string | null {
   const slug = LOGO_MAP[name]
   if (!slug) return null
-  return `https://api.iconify.design/simple-icons:${slug}.svg?color=ffffff`
+  const color = DARK_BRANDS.has(slug) ? '?color=ffffff' : ''
+  return `https://api.iconify.design/simple-icons:${slug}.svg${color}`
 }
 
 /**
