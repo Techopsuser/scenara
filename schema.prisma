@@ -18,6 +18,7 @@ model User {
   emailVerified DateTime?
   image         String?
   password      String?
+  role          String    @default("user")   // <--- ADD THIS EXACT LINE
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
@@ -28,7 +29,6 @@ model User {
   solutions Solution[]
   votes     Vote[]
 }
-
 model Account {
   id                String  @id @default(cuid())
   userId            String
